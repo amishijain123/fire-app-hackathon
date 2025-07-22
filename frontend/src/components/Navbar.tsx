@@ -18,15 +18,13 @@ import { usePathname } from "next/navigation";
 const navigationLinks: NavigationLink[] = [
   { href: "/", label: "Home", active: true },
   { href: "/features", label: "Features" },
-  { href: "#", label: "Pricing" },
-  { href: "#", label: "About" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b px-4 md:px-6">
+    <header className="border-b px-4 backdrop-blur-lg md:px-6">
       <div className="flex h-16 justify-between gap-4">
         {/* Left side */}
         <div className="flex gap-2">

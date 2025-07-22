@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Image from "next/image";
+import LocomotiveScrollWrapper from "@/components/LocomotiveScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +30,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        <LocomotiveScrollWrapper>
+          <div className="grayscale-100w-full pointer-events-none fixed inset-0 -z-10 h-full opacity-20 grayscale-100 contrast-more:contrast-125">
+            <Image
+              src={`https://plus.unsplash.com/premium_photo-1663931932687-c4c2366a5c61?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`}
+              alt="FIRE Finance Dashboard Illustration"
+              width={480}
+              height={380}
+              className="h-full w-full object-cover object-center"
+              priority
+            />
+          </div>
+          <Navbar />
+
+          {children}
+        </LocomotiveScrollWrapper>
       </body>
     </html>
   );

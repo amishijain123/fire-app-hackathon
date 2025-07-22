@@ -44,19 +44,21 @@ const FeaturesPage: React.FC = () => {
           content="Overview of MVP 2 features: FIRE calculator, expense uploader, and progress dashboard."
         />
       </Head>
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-10 text-center">Our Features</h1>
+      <main className="mx-auto my-10 flex h-full max-w-4xl flex-col content-center justify-center px-4 py-8 select-none md:my-20">
+        <h1 className="mb-20 text-center text-4xl font-bold md:text-6xl lg:text-9xl">
+          Our Features
+        </h1>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Object.entries(featuresDict).map(([key, feature]) => (
             <Card
               key={key}
-              className="flex flex-col h-full hover:shadow-lg transition-shadow"
+              className="flex h-full flex-col backdrop-blur-sm transition hover:scale-105 hover:shadow-lg"
             >
               <CardHeader>
                 <CardTitle className="text-2xl">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
+                <ul className="list-disc space-y-1 pl-5 text-sm">
                   {feature.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
