@@ -77,8 +77,15 @@ def fire():
         return_rate = float(data.get("return_rate", 0.05))
     except:
         return jsonify({"error": "Invalid input"}), 400
+    result = calculate_fire(monthly_income, monthly_expenses, return_rate)
+    return jsonify(
+        {
+            "fire_number": result["fire_number"],
+            "years_to_fire": result["years_to_fire"],
+            "projections": result["projections"],
+        }
+    )
 
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
-
