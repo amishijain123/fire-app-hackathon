@@ -1,46 +1,19 @@
-import React from "react";
+"use client";
+import React, { useState, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import axios from "axios";
 
+axios.defaults.baseURL = "http://localhost:8080/api";
+
 const FireNumberPage: React.FC = () => {
-  const calculateFireNumber = async () => {
-    // Placeholder for the calculation logic
-    // This function will handle the form submission and call the backend API
-    const monthlyIncome = parseFloat(
-      (document.getElementById("monthlyIncome") as HTMLInputElement).value,
-    );
-    const monthlyExpenses = parseFloat(
-      (document.getElementById("monthlyExpenses") as HTMLInputElement).value,
-    );
-    const annualReturnRate = parseFloat(
-      (document.getElementById("annualReturnRate") as HTMLInputElement).value,
-    );
-
-    if (
-      isNaN(monthlyIncome) ||
-      isNaN(monthlyExpenses) ||
-      isNaN(annualReturnRate)
-    ) {
-      alert("Please enter valid numbers for all fields.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("/api/fire-calculator", {
-        monthlyIncome,
-        monthlyExpenses,
-        annualReturnRate,
-      });
-      alert(`Your FIRE number is: ${response.data.fireNumber}`);
-    } catch (error) {
-      console.error("Error calculating FIRE number:", error);
-      alert("Failed to calculate FIRE number. Please try again.");
-    }
-  };
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null);
+  const MonthyIncomeRef = React.useRef<HTMLInputElement>(null);
+  const MonthlyExpensesRef = React.useRef<HTMLInputElement>(null);
+  const AnnualReturnRateRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -70,6 +43,7 @@ const FireNumberPage: React.FC = () => {
                 Monthly Income
               </label>
               <Input
+                ref={MonthyIncomeRef}
                 id="monthlyIncome"
                 type="number"
                 placeholder="Enter your monthly income"
@@ -83,6 +57,7 @@ const FireNumberPage: React.FC = () => {
                 Monthly Expenses
               </label>
               <Input
+                ref={MonthlyExpensesRef}
                 id="monthlyExpenses"
                 type="number"
                 placeholder="Enter your monthly expenses"
@@ -96,16 +71,22 @@ const FireNumberPage: React.FC = () => {
                 Expected Annual Return Rate (%)
               </label>
               <Input
+                ref={AnnualReturnRateRef}
                 id="annualReturnRate"
                 type="number"
                 placeholder="Enter expected annual return rate"
               />
             </div>
-            <Button className="mt-4 w-full">Calculate FIRE Number</Button>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {result && <p className="font-semibold text-green-600">{result}</p>}
+            <Button onClick={} className="mt-4 w-full">
+              Calculate FIRE Number
+            </Button>
           </CardContent>
         </Card>
       </main>
     </>
   );
 };
+
 export default FireNumberPage;
