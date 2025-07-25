@@ -5,15 +5,128 @@ import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 axios.defaults.baseURL = "http://localhost:8080/api";
 
 const FireNumberPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
+  const [projections, setProjections] = useState<
+    { year: number; savings: number }[]
+  >([]);
   const MonthyIncomeRef = React.useRef<HTMLInputElement>(null);
   const MonthlyExpensesRef = React.useRef<HTMLInputElement>(null);
   const AnnualReturnRateRef = React.useRef<HTMLInputElement>(null);
+
+  const handleCalculate = async () => {
+    setError(null);
+    setResult(null);
+    setProjections([]);
+    const monthly_income = MonthyIncomeRef.current?.value;
+    const monthly_expenses = MonthlyExpensesRef.current?.value;
+    const return_rate = AnnualReturnRateRef.current?.value;
+
+    // Basic validation
+    if (
+      !monthly_income ||
+      !monthly_expenses ||
+      Number(monthly_income) < 0 ||
+      Number(monthly_expenses) < 0
+    ) {
+      setError("Please enter valid positive numbers for income and expenses.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/fire", {
+        monthly_income: Number(monthly_income),
+        monthly_expenses: Number(monthly_expenses),
+        return_rate: return_rate ? Number(return_rate) / 100 : undefined, // Convert percent to decimal
+      });
+      const { fire_number, years_to_fire, projections } = response.data;
+
+      setResult(
+        `Your FIRE number is $${fire_number.toLocaleString(undefined, {
+          maximumFractionDigits: 2,
+        })}. Estimated years to FIRE: ${years_to_fire}.`,
+      );
+      setProjections(projections || []);
+    } catch (err: any) {
+      if (err?.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
+  };
+
+  // Improved Graph component using recharts for better fit and responsiveness
+  const FireGraph = ({
+    data,
+  }: {
+    data: { year: number; savings: number }[];
+  }) => (
+    <div
+      style={{ width: "100%", minHeight: 300, height: "40vh", maxHeight: 500 }}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={data}
+          margin={{ top: 24, right: 32, left: 64, bottom: 24 }} // Increased left margin!
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="year"
+            label={{
+              value: "Year",
+              position: "insideBottom",
+              offset: -8,
+              style: { textAnchor: "middle" },
+            }}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis
+            label={{
+              value: "Savings ($)",
+              angle: -90,
+              position: "left", // Changed from "insideLeft" to "left"
+              offset: 40,
+              style: { textAnchor: "middle" },
+            }}
+            tickFormatter={(v) => `$${v.toLocaleString()}`}
+            tick={{ fontSize: 12 }}
+          />
+          <Tooltip
+            formatter={(value: number) =>
+              `$${Number(value).toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+              })}`
+            }
+            labelFormatter={(label) => `Year: ${label}`}
+          />
+          <Legend verticalAlign="top" height={36} />
+          <Line
+            type="monotone"
+            dataKey="savings"
+            name="Projected Savings"
+            stroke="#82ca9d"
+            strokeWidth={3}
+            dot={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
 
   return (
     <>
@@ -79,9 +192,17 @@ const FireNumberPage: React.FC = () => {
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             {result && <p className="font-semibold text-green-600">{result}</p>}
-            <Button onClick={} className="mt-4 w-full">
+            <Button className="mt-4 w-full" onClick={handleCalculate}>
               Calculate FIRE Number
             </Button>
+            {projections.length > 0 && (
+              <div className="mt-8">
+                <h2 className="mb-4 text-xl font-semibold">
+                  Savings Projection
+                </h2>
+                <FireGraph data={projections} />
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>
